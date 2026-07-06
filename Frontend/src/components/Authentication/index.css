@@ -3,14 +3,14 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  color: #101827;
+  color: #2a1726;
   font-family: "Inter", "Segoe UI", sans-serif;
   background:
-    linear-gradient(90deg, rgba(16, 24, 39, 0.055) 1px, transparent 1px),
-    linear-gradient(rgba(16, 24, 39, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 8% 10%, rgba(28, 196, 181, 0.18), transparent 30rem),
-    radial-gradient(circle at 92% 90%, rgba(78, 129, 255, 0.16), transparent 34rem),
-    #f6f8fc;
+    linear-gradient(90deg, rgba(147, 51, 98, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(147, 51, 98, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 10% 12%, rgba(244, 114, 182, 0.22), transparent 30rem),
+    radial-gradient(circle at 92% 88%, rgba(251, 207, 232, 0.46), transparent 34rem),
+    #fff7fb;
   background-size: 40px 40px, 40px 40px, auto, auto, auto;
 }
 
@@ -20,10 +20,11 @@
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   overflow: hidden;
-  border: 1px solid rgba(141, 154, 176, 0.28);
+  border: 1px solid rgba(236, 72, 153, 0.18);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 28px 70px rgba(16, 24, 39, 0.16);
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 28px 70px rgba(157, 23, 77, 0.13);
+  backdrop-filter: blur(22px);
 }
 
 .auth-brand-panel {
@@ -32,11 +33,12 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 54px;
-  color: #ffffff;
+  color: #4a1837;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    #101827;
+    linear-gradient(90deg, rgba(157, 23, 77, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(157, 23, 77, 0.07) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(252, 231, 243, 0.8)),
+    rgba(253, 242, 248, 0.76);
   background-size: 40px 40px;
 }
 
@@ -44,7 +46,7 @@
   content: "";
   position: absolute;
   inset: 54px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(236, 72, 153, 0.16);
   border-radius: 20px;
   pointer-events: none;
 }
@@ -56,7 +58,7 @@
   border-radius: 18px;
   background: #ffffff;
   object-fit: contain;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 14px 34px rgba(157, 23, 77, 0.12);
   z-index: 1;
 }
 
@@ -69,7 +71,7 @@
 .auth-kicker {
   display: block;
   margin-bottom: 14px;
-  color: #1cc4b5;
+  color: #db2777;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -78,7 +80,7 @@
 
 .app-title {
   margin: 0 0 18px;
-  color: #ffffff;
+  color: #4a1837;
   font-size: clamp(3.5rem, 7vw, 5.4rem);
   font-weight: 500;
   line-height: 0.95;
@@ -88,7 +90,7 @@
 .brand-copy p {
   max-width: 560px;
   margin: 0;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(74, 24, 55, 0.68);
   font-size: 1.38rem;
   font-weight: 600;
   line-height: 1.45;
@@ -103,10 +105,10 @@
 
 .brand-pills span {
   padding: 11px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.17);
+  border: 1px solid rgba(219, 39, 119, 0.16);
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.08);
+  color: rgba(74, 24, 55, 0.78);
+  background: rgba(255, 255, 255, 0.52);
   font-weight: 800;
 }
 
@@ -115,12 +117,13 @@
   flex-direction: column;
   justify-content: center;
   padding: 58px;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(22px);
 }
 
 .auth-container h2 {
   margin: 0 0 24px;
-  color: #101827;
+  color: #2a1726;
   font-size: clamp(2.1rem, 4vw, 3rem);
   font-weight: 500;
   line-height: 1.1;
@@ -132,16 +135,16 @@
   gap: 8px;
   margin-bottom: 18px;
   padding: 5px;
-  border: 1px solid #d9e0eb;
+  border: 1px solid rgba(236, 72, 153, 0.18);
   border-radius: 14px;
-  background: #f6f8fc;
+  background: rgba(253, 242, 248, 0.72);
 }
 
 .auth-toggle button {
   min-height: 42px;
   border: 0;
   border-radius: 10px;
-  color: #687489;
+  color: #8b5a76;
   background: transparent;
   font-size: 0.98rem;
   font-weight: 800;
@@ -151,8 +154,8 @@
 
 .auth-toggle button.active {
   color: #ffffff;
-  background: #101827;
-  box-shadow: 0 10px 22px rgba(16, 24, 39, 0.2);
+  background: linear-gradient(135deg, #be185d, #db2777);
+  box-shadow: 0 10px 22px rgba(219, 39, 119, 0.22);
 }
 
 .auth-message {
@@ -164,14 +167,14 @@
 }
 
 .auth-message.success {
-  color: #08715f;
-  background-color: #defaf5;
-  border: 1px solid #8ce6db;
+  color: #047857;
+  background-color: rgba(220, 252, 231, 0.82);
+  border: 1px solid #86efac;
 }
 
 .auth-message.error {
   color: #991b1b;
-  background-color: #fff0f0;
+  background-color: rgba(255, 241, 242, 0.88);
   border: 1px solid #fecaca;
 }
 
@@ -185,10 +188,10 @@
   width: 100%;
   min-height: 62px;
   padding: 0 18px;
-  border: 1px solid #d4dce9;
+  border: 1px solid rgba(219, 39, 119, 0.18);
   border-radius: 14px;
-  color: #101827;
-  background: #ffffff;
+  color: #2a1726;
+  background: rgba(255, 255, 255, 0.72);
   font-size: 1.08rem;
   outline: none;
   box-sizing: border-box;
@@ -196,18 +199,18 @@
 }
 
 .auth-container input::placeholder {
-  color: #98a3b5;
+  color: #b1849d;
   font-weight: 600;
 }
 
 .auth-container input:focus {
-  border-color: #1cc4b5;
-  box-shadow: 0 0 0 4px rgba(28, 196, 181, 0.14);
+  border-color: #db2777;
+  box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.12);
 }
 
 .password-hint {
   margin: -4px 0 2px;
-  color: #687489;
+  color: #8b5a76;
   font-size: 0.82rem;
   line-height: 1.45;
   text-align: left;
@@ -218,18 +221,18 @@
   border: none;
   border-radius: 14px;
   color: #ffffff;
-  background: #101827;
+  background: linear-gradient(135deg, #be185d, #db2777);
   font-size: 1.05rem;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 18px 34px rgba(16, 24, 39, 0.2);
+  box-shadow: 0 18px 34px rgba(219, 39, 119, 0.22);
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-container button[type="submit"]:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: #172238;
-  box-shadow: 0 22px 42px rgba(16, 24, 39, 0.24);
+  background: linear-gradient(135deg, #9d174d, #be185d);
+  box-shadow: 0 22px 42px rgba(219, 39, 119, 0.26);
 }
 
 .auth-container button[type="submit"]:disabled {
@@ -242,7 +245,7 @@
   align-items: center;
   gap: 14px;
   margin: 22px 0;
-  color: #687489;
+  color: #8b5a76;
   font-weight: 600;
 }
 
@@ -251,7 +254,7 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: #dce3ee;
+  background: rgba(219, 39, 119, 0.16);
 }
 
 .google-login-wrap {
