@@ -24,6 +24,9 @@ app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 // --- ROUTES ---
 connectToDb();
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 app.use("/", userRoutes);
 app.use("/canvas", canvasRoutes);
 

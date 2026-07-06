@@ -11,9 +11,21 @@ import Dashboard from "./components/Dashboard/index";
 import Board from "./components/Board";
 import "./App.css";
 import VerifyEmail from "./components/VerifyEmail";
+import { API_BASE_URL } from "./config";
 
 function App() {
   const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const pingBackend = () => {
+      fetch(`${API_BASE_URL}/health`).catch(() => {});
+    };
+
+    pingBackend();
+    const intervalId = setInterval(pingBackend, 10 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
