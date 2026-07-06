@@ -1,9 +1,9 @@
 # CoSketch Whiteboard
 
 CoSketch is a full-stack collaborative whiteboard app with user authentication, saved canvases, canvas sharing, and a browser-based drawing board.
-<img width="1912" height="900" alt="image" src="https://github.com/user-attachments/assets/af428171-925f-43cd-a6a6-7204aa3a962b" />
+<img width="1870" height="900" alt="image" src="https://github.com/user-attachments/assets/09da4aa3-277d-416c-bf9f-a8e986b2c55b" />
 
-<img width="1912" height="887" alt="image" src="https://github.com/user-attachments/assets/18edf58f-028f-401c-96cd-472409131746" />
+<img width="1893" height="898" alt="image" src="https://github.com/user-attachments/assets/5ac0bae9-219a-4a65-8b93-1d0db58b7127" />
 
 
 ## Features
