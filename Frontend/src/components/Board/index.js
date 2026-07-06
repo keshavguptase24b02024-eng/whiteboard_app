@@ -61,12 +61,17 @@ function Board() {
 
     elements.forEach((element) => {
       if (element.type === TOOL_ITEMS.BRUSH) {
-        if (!element.path) return;
-        context.fillStyle = element.stroke;
-        context.fill(element.path);
+        const points = element.points || [];
+        if (points.length === 0) return;
+
+        context.beginPath();
         context.strokeStyle = element.stroke;
-        context.lineWidth = element.size;
-        context.stroke(element.path);
+        context.lineWidth = element.size || 1;
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.moveTo(points[0].x, points[0].y);
+        points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
+        context.stroke();
       } else if (element.type === TOOL_ITEMS.TEXT) {
         context.save(); 
         context.textBaseline = "top";

@@ -1,7 +1,6 @@
 import { ARROW_Length, TOOL_ITEMS } from "../constants";
 import rough from "roughjs/bin/rough"
 import { getArrorheadCorodinates } from "./math"; 
-import getStroke from "perfect-freehand";
 import { isPointCloseToLine } from "./math";
 const gen = rough.generator();
 
@@ -20,19 +19,9 @@ export const createRoughElement = (id,x1,y1,x2,y2,{type,stroke,fill,size})=> {
 
     switch (type) {
         case TOOL_ITEMS.BRUSH:{
-            const brushSize = size || 4; 
-            const points = [{ x: x1, y: y1 }];
-                
-            const strokePoints = getStroke(points, {
-                size: brushSize,
-                thinning: 0, 
-                smoothing: 0.2, 
-                streamline: 0.5, 
-            });
             const brushElement = {
                 id,
                 points: [{x:x1,y:y1}],
-                path: new Path2D(getSvgPathFromStroke(strokePoints)),
                 type,
                 stroke,
                 fill,
@@ -106,8 +95,9 @@ export const isPointNearElement = (element, {pointX, pointY}) =>{
 
         case TOOL_ITEMS.BRUSH:
             {
-                const context = document.getElementById("canvas").getContext('2d');
-                return context.isPointInPath(element.path,pointX, pointY)
+                return element.points?.some(({ x, y }) => {
+                    return Math.hypot(x - pointX, y - pointY) <= (element.size || 1) + 4;
+                });
             }
         case TOOL_ITEMS.TEXT:
             const context = document.getElementById("canvas").getContext('2d');

@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import boardContext from './board-context';
 import { TOOL_ITEMS, BOARD_ACTIONS, TOOL_ACTION_TYPES } from '../constants';
-import { createRoughElement, getSvgPathFromStroke, isPointNearElement } from '../utils/element';
-import getStroke from 'perfect-freehand';
+import { createRoughElement, isPointNearElement } from '../utils/element';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../config';
@@ -66,7 +65,6 @@ const boardReducer = (state, action) => {
           return { ...state, elements: newElements };
         case TOOL_ITEMS.BRUSH:
           newElements[index].points = [...newElements[index].points, { x: clientX, y: clientY }];
-          newElements[index].path = new Path2D(getSvgPathFromStroke(getStroke(newElements[index].points)));
           return { ...state, elements: newElements };
         default:
           return state;
@@ -110,7 +108,6 @@ const hydrateElements = (fetchedElements = []) => {
     switch (el.type) {
       case TOOL_ITEMS.BRUSH:
         el.points = Array.isArray(el.points) ? el.points : [];
-        el.path = new Path2D(getSvgPathFromStroke(getStroke(el.points)));
         return el;
       case TOOL_ITEMS.LINE:
       case TOOL_ITEMS.RECTANGLE:
