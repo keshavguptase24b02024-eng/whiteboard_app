@@ -6,6 +6,7 @@ import getStroke from 'perfect-freehand';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../config';
+import { serializeElements } from '../utils/api';
 
 const BASE_URL = API_BASE_URL;
 
@@ -103,10 +104,12 @@ const boardReducer = (state, action) => {
   }
 };
 
-const hydrateElements = (fetchedElements) => {
-  return fetchedElements.map((el, index) => {
+const hydrateElements = (fetchedElements = []) => {
+  return fetchedElements.map((element, index) => {
+    const el = { ...element };
     switch (el.type) {
       case TOOL_ITEMS.BRUSH:
+        el.points = Array.isArray(el.points) ? el.points : [];
         el.path = new Path2D(getSvgPathFromStroke(getStroke(el.points)));
         return el;
       case TOOL_ITEMS.LINE:
@@ -147,7 +150,7 @@ const BoardProvider = ({ children }) => {
 
     socket.on("canvasUpdated", (allElements) => {
       isSocketUpdate.current = true; 
-      dispatchBoardAction({ type: BOARD_ACTIONS.SET_ELEMENTS, payload: { elements: hydrateElements(allElements) } });
+          dispatchBoardAction({ type: BOARD_ACTIONS.SET_ELEMENTS, payload: { elements: hydrateElements(allElements) } });
     });
 
     return () => {
@@ -160,7 +163,7 @@ const BoardProvider = ({ children }) => {
       if (isSocketUpdate.current) {
         isSocketUpdate.current = false;
       } else {
-        socket.emit("updateCanvas", { canvasId: id, data: boardState.elements });
+        socket.emit("updateCanvas", { canvasId: id, data: serializeElements(boardState.elements) });
       }
     }
   }, [boardState.elements, id, boardState.loading]);

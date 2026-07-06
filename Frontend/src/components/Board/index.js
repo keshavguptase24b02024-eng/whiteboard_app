@@ -61,6 +61,7 @@ function Board() {
 
     elements.forEach((element) => {
       if (element.type === TOOL_ITEMS.BRUSH) {
+        if (!element.path) return;
         context.fillStyle = element.stroke;
         context.fill(element.path);
         context.strokeStyle = element.stroke;

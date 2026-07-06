@@ -1,5 +1,8 @@
 import { API_BASE_URL } from "../config";
 
+export const serializeElements = (elements = []) =>
+  elements.map(({ path, roughElement, ...element }) => element);
+
 export const updateCanvas = async(canvasId, elements)=>{
   const token = localStorage.getItem("token");
   if (!canvasId || !token) return;
@@ -12,7 +15,7 @@ export const updateCanvas = async(canvasId, elements)=>{
       },
       body: JSON.stringify({
         canvasId,
-        elements: elements,
+        elements: serializeElements(elements),
       }),
     });
     console.log("Canvas auto-saved");
