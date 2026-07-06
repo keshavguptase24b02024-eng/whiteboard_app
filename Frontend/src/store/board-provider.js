@@ -22,7 +22,17 @@ const initialBoardState = {
   history: [[]],
   index: 0,
   loading: true,
+  viewport: {
+    x: 0,
+    y: 0,
+    zoom: 1,
+  },
 };
+
+const screenToWorld = ({ clientX, clientY }, viewport) => ({
+  x: viewport.x + clientX / viewport.zoom,
+  y: viewport.y + clientY / viewport.zoom,
+});
 
 const boardReducer = (state, action) => {
   switch (action.type) {
@@ -98,6 +108,32 @@ const boardReducer = (state, action) => {
     case BOARD_ACTIONS.REDO:
       if (state.index >= state.history.length - 1) return state;
       return { ...state, elements: state.history[state.index + 1], index: state.index + 1 };
+    case BOARD_ACTIONS.PAN_VIEWPORT: {
+      const { deltaX, deltaY } = action.payload;
+      return {
+        ...state,
+        viewport: {
+          ...state.viewport,
+          x: state.viewport.x - deltaX / state.viewport.zoom,
+          y: state.viewport.y - deltaY / state.viewport.zoom,
+        },
+      };
+    }
+    case BOARD_ACTIONS.ZOOM_VIEWPORT: {
+      const { clientX, clientY, zoom } = action.payload;
+      const newZoom = Math.min(Math.max(zoom, 0.15), 5);
+      const worldX = state.viewport.x + clientX / state.viewport.zoom;
+      const worldY = state.viewport.y + clientY / state.viewport.zoom;
+
+      return {
+        ...state,
+        viewport: {
+          x: worldX - clientX / newZoom,
+          y: worldY - clientY / newZoom,
+          zoom: newZoom,
+        },
+      };
+    }
     default:
       return state;
   }
@@ -171,7 +207,7 @@ const BoardProvider = ({ children }) => {
 
   const handleMouseDown = (event, toolBoxState) => {
     if (boardState.toolActionType === TOOL_ACTION_TYPES.WRITING) return;
-    const { clientX, clientY } = event;
+    const { x: clientX, y: clientY } = screenToWorld(event, boardState.viewport);
     if (boardState.activeToolItem === TOOL_ITEMS.ERASER) {
       dispatchBoardAction({ type: BOARD_ACTIONS.CHANGE_ACTION_TYPE, payload: { actionType: TOOL_ACTION_TYPES.ERASING } });
     } else {
@@ -189,7 +225,7 @@ const BoardProvider = ({ children }) => {
   };
 
   const handleMouseMove = (event) => {
-    const { clientX, clientY } = event;
+    const { x: clientX, y: clientY } = screenToWorld(event, boardState.viewport);
     if (boardState.toolActionType === TOOL_ACTION_TYPES.WRITING) return;
 
     if (boardState.toolActionType === TOOL_ACTION_TYPES.DRAWING) {
@@ -211,6 +247,19 @@ const BoardProvider = ({ children }) => {
     dispatchBoardAction({ type: BOARD_ACTIONS.CHANGE_TEXT, payload: { text } });
   };
 
+  const panViewport = useCallback((deltaX, deltaY) => {
+    dispatchBoardAction({ type: BOARD_ACTIONS.PAN_VIEWPORT, payload: { deltaX, deltaY } });
+  }, []);
+
+  const zoomViewport = useCallback((clientX, clientY, nextZoom) => {
+    dispatchBoardAction({ type: BOARD_ACTIONS.ZOOM_VIEWPORT, payload: { clientX, clientY, zoom: nextZoom } });
+  }, []);
+
+  const worldToScreen = useCallback((point) => ({
+    x: (point.x - boardState.viewport.x) * boardState.viewport.zoom,
+    y: (point.y - boardState.viewport.y) * boardState.viewport.zoom,
+  }), [boardState.viewport]);
+
   const undoboardHandler = useCallback(() => dispatchBoardAction({ type: BOARD_ACTIONS.UNDO }), []);
   const redoBoardhandler = useCallback(() => dispatchBoardAction({ type: BOARD_ACTIONS.REDO }), []);
 
@@ -225,6 +274,10 @@ const BoardProvider = ({ children }) => {
     textAreaBlur: textAreaBlurhandler,
     undo: undoboardHandler,
     redo: redoBoardhandler,
+    viewport: boardState.viewport,
+    panViewport,
+    zoomViewport,
+    worldToScreen,
   };
 
   return <boardContext.Provider value={boardContextValue}>{children}</boardContext.Provider>;

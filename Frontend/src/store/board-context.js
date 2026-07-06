@@ -13,7 +13,11 @@ const boardContext = createContext(
         boardMouseMoveHandler : ()=>{},
         textAreaBlur : ()=>{},
         undo : ()=>{},
-        redo: ()=>{}
+        redo: ()=>{},
+        viewport: { x: 0, y: 0, zoom: 1 },
+        panViewport: () => {},
+        zoomViewport: () => {},
+        worldToScreen: () => ({ x: 0, y: 0 })
     }
 )
 
