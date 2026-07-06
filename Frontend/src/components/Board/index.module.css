@@ -1,0 +1,24 @@
+/* Text tool textarea */
+.textElementBox {
+  position: absolute;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0;
+  margin: 0;
+  font-family: 'Caveat', cursive;;
+  line-height: 1.2;
+  min-width: 20px;
+  min-height: 1.2em;
+  z-index: 1000;
+}
+
+/* Focus indicator similar to active color box style */
+.textElementBox:focus {
+  border-bottom: 2px solid #4a47b1;
+  box-shadow: 0 1px 0 0 #4a47b1;
+}
