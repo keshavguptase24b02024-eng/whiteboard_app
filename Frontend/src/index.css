@@ -5,11 +5,12 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #101827;
 }
 
 #canvas {
@@ -19,7 +20,12 @@ body {
   height: 100vh;
   z-index: 0;
   display: block;
-  background: #ffffff;
+  background:
+    linear-gradient(90deg, rgba(16, 24, 39, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(16, 24, 39, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 100% 0%, rgba(78, 129, 255, 0.09), transparent 28rem),
+    #f7f9fc;
+  background-size: 38px 38px, 38px 38px, auto, auto;
 }
 
 code {

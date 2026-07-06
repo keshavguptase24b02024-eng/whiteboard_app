@@ -116,24 +116,39 @@ export default function Auth({ onLogin }) {
 
   return (
     <div className="auth-page">
-      <h1 className="app-title">CoSketch</h1>
-      <div className="auth-toggle">
-        <button 
-          className={mode === "login" ? "active" : ""} 
-          onClick={() => { setMode("login"); setMessage(null); setStatus(""); }}
-        >
-          Login
-        </button>
-        <button 
-          className={mode === "signup" ? "active" : ""} 
-          onClick={() => { setMode("signup"); setMessage(null); setStatus(""); }}
-        >
-          Sign Up
-        </button>
-      </div>
+      <div className="auth-shell">
+        <section className="auth-brand-panel">
+          <img src="/cosketch-logo.svg" alt="CoSketch logo" className="auth-logo" />
+          <div className="brand-copy">
+            <span className="brand-kicker">Collaborative canvas</span>
+            <h1 className="app-title">CoSketch</h1>
+            <p>Create, save, and share whiteboards with a workspace that feels calm, focused, and ready for ideas.</p>
+          </div>
+          <div className="brand-pills">
+            <span>Live sync</span>
+            <span>Secure boards</span>
+            <span>Ideas saved</span>
+          </div>
+        </section>
 
-      <div className="auth-container">
-        <h2>{isSignup ? "Create Account" : "Welcome Back"}</h2>
+        <section className="auth-container">
+          <span className="auth-kicker">{isSignup ? "Start creating" : "Welcome back"}</span>
+          <h2>{isSignup ? "Create your account" : "Login to CoSketch"}</h2>
+
+          <div className="auth-toggle">
+            <button 
+              className={mode === "login" ? "active" : ""} 
+              onClick={() => { setMode("login"); setMessage(null); setStatus(""); }}
+            >
+              Login
+            </button>
+            <button 
+              className={mode === "signup" ? "active" : ""} 
+              onClick={() => { setMode("signup"); setMessage(null); setStatus(""); }}
+            >
+              Register
+            </button>
+          </div>
 
         {message && <div className={`auth-message ${status}`}>{message}</div>}
 
@@ -166,7 +181,7 @@ export default function Auth({ onLogin }) {
           />
           
           {isSignup && (
-            <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "-10px 0 15px 0", textAlign: "left" }}>
+            <p className="password-hint">
               Password must contain 8+ characters, including 1 uppercase, 1 lowercase, 1 number, and 1 special character.
             </p>
           )}
@@ -177,14 +192,15 @@ export default function Auth({ onLogin }) {
           </button>
         </form>
 
-        <div style={{ margin: "20px 0", textAlign: "center", color: "#6b7280" }}>OR</div>
+        <div className="auth-divider"><span>or</span></div>
         
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div className="google-login-wrap">
           <GoogleLogin 
             onSuccess={handleGoogleSuccess} 
             onError={() => { setStatus("error"); setMessage("Google Login Failed"); }}
           />
         </div>
+        </section>
       </div>
     </div>
   );
