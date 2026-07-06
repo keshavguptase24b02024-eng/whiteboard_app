@@ -15,47 +15,23 @@ const createUser = async (req, res) => {
         console.log("--- STARTING REGISTRATION ---");
         const { name, email, password } = req.body;
         
-        // 1. Check if user already exists in the main DB
         console.log("1. Checking main DB for existing user...");
         const existingUser = await userModel.findOne({ email });
         if (existingUser) return res.status(400).json({ error: "User with this email already exists." });
 
-        // 2. Hash password and generate OTP
         console.log("2. Hashing password...");
         const hashedPassword = await bcrypt.hash(password, 10);
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // 3. Save to temporary OTP collection
-        console.log("3. Saving to temporary OTP DB...");
-        await OtpModel.findOneAndUpdate(
-            { email },
-            { name, email, password: hashedPassword, otp: otpCode, createdAt: Date.now() },
-            { upsert: true, returnDocument: 'after' }
-        );
-
-        // 4. Send Email via Resend
-        console.log("4. Attempting to send email via Resend...");
-        const { error: resendError } = await resend.emails.send({
-            from: 'WhiteSync <onboarding@resend.dev>',
-            to: email,
-            subject: "Your WhiteSync App Verification Code",
-            html: `
-                <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
-                    <h2>Welcome to WhiteSync!</h2>
-                    <p>Your email verification code is:</p>
-                    <h1 style="color: #4A90E2; letter-spacing: 5px;">${otpCode}</h1>
-                    <p>This code will expire in 10 minutes.</p>
-                </div>
-            `
+        const user = new userModel({
+            name,
+            email,
+            password: hashedPassword,
+            isVerified: true
         });
+        await user.save();
 
-        if (resendError) {
-            console.error("!!! RESEND ERROR !!!", resendError);
-            return res.status(500).json({ error: "Failed to send verification email. Please try again." });
-        }
-
-        console.log("5. Email sent! Sending success response to frontend...");
-        res.status(201).json({ message: "Registration initiated. Please check your email for the verification code." });
+        const token = JWT.sign({ email: user.email }, process.env.JWT_ACCESS_SECRET, { expiresIn: "7h" });
+        res.status(201).json({ token, user: { name: user.name, email: user.email, userId: user._id } });
 
     } catch (error) {
         console.error("!!! ERROR CAUGHT IN CATCH BLOCK !!!", error);
