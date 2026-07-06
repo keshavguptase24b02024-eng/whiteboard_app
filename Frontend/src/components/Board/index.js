@@ -54,37 +54,45 @@ function Board() {
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    context.save();
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    try {
+      context.save();
+      context.clearRect(0, 0, canvas.width, canvas.height);
 
-    const roughCanvas = rough.canvas(canvas);
+      const roughCanvas = rough.canvas(canvas);
 
-    elements.forEach((element) => {
-      if (element.type === TOOL_ITEMS.BRUSH) {
-        const points = element.points || [];
-        if (points.length === 0) return;
+      elements.forEach((element) => {
+        try {
+          if (element.type === TOOL_ITEMS.BRUSH) {
+            const points = element.points || [];
+            if (points.length === 0) return;
 
-        context.beginPath();
-        context.strokeStyle = element.stroke;
-        context.lineWidth = element.size || 1;
-        context.lineCap = "round";
-        context.lineJoin = "round";
-        context.moveTo(points[0].x, points[0].y);
-        points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
-        context.stroke();
-      } else if (element.type === TOOL_ITEMS.TEXT) {
-        context.save(); 
-        context.textBaseline = "top";
-        context.font = `${element.size}px Caveat`;
-        context.fillStyle = element.stroke;
-        context.fillText(element.text, element.x1, element.y1);
-        context.restore();
-      } else {
-        roughCanvas.draw(element.roughElement);
-      }
-    });
-    
-    context.restore();
+            context.beginPath();
+            context.strokeStyle = element.stroke;
+            context.lineWidth = element.size || 1;
+            context.lineCap = "round";
+            context.lineJoin = "round";
+            context.moveTo(points[0].x, points[0].y);
+            points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
+            context.stroke();
+          } else if (element.type === TOOL_ITEMS.TEXT) {
+            context.save(); 
+            context.textBaseline = "top";
+            context.font = `${element.size}px Caveat`;
+            context.fillStyle = element.stroke;
+            context.fillText(element.text, element.x1, element.y1);
+            context.restore();
+          } else if (element.roughElement) {
+            roughCanvas.draw(element.roughElement);
+          }
+        } catch (err) {
+          console.error("Failed to draw element:", err, element);
+        }
+      });
+    } catch (err) {
+      console.error("Failed to render board:", err);
+    } finally {
+      context.restore();
+    }
   }, [elements]);
 
   const boardMouseDownhandler = (event) => {

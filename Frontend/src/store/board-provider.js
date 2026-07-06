@@ -54,6 +54,7 @@ const boardReducer = (state, action) => {
       const { clientX, clientY } = action.payload;
       const newElements = [...state.elements];
       const index = state.elements.length - 1;
+      if (index < 0 || !newElements[index]) return state;
       const { x1, y1, stroke, fill, size, type } = newElements[index];
 
       switch (type) {
