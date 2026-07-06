@@ -99,7 +99,7 @@ function Dashboard({ onLogout }) {
   return (
     <div className="dashboard">
       <header className="topbar">
-        <h1 className="app-name">WhiteSync App</h1>
+        <h1 className="app-name">CoSketch</h1>
         <div className="user-info">
           <button className="logout-btn" onClick={onLogout}>Logout</button>
         </div>

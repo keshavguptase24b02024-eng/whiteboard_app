@@ -116,7 +116,7 @@ export default function Auth({ onLogin }) {
 
   return (
     <div className="auth-page">
-      <h1 className="app-title">WhiteSync App</h1>
+      <h1 className="app-title">CoSketch</h1>
       <div className="auth-toggle">
         <button 
           className={mode === "login" ? "active" : ""} 
