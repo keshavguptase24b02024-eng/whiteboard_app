@@ -44,6 +44,7 @@ function Board() {
   const { id } = useParams();
   const { toolBoxState } = useContext(toolboxContext);
   const {
+    activeToolItem,
     elements,
     handleMouseDown,
     handleMouseMove,
@@ -207,35 +208,37 @@ function Board() {
       return;
     }
 
-    const worldPoint = {
-      x: viewport.x + event.clientX / viewport.zoom,
-      y: viewport.y + event.clientY / viewport.zoom,
-    };
-    const movableElement = [...elements].reverse().find((element) => {
-      if (element.type === TOOL_ITEMS.STICKY_NOTE) {
-        return worldPoint.x >= Math.min(element.x1, element.x2)
-          && worldPoint.x <= Math.max(element.x1, element.x2)
-          && worldPoint.y >= Math.min(element.y1, element.y2)
-          && worldPoint.y <= Math.max(element.y1, element.y2);
+    if (![TOOL_ITEMS.TEXT, TOOL_ITEMS.ERASER].includes(activeToolItem)) {
+      const worldPoint = {
+        x: viewport.x + event.clientX / viewport.zoom,
+        y: viewport.y + event.clientY / viewport.zoom,
+      };
+      const movableElement = [...elements].reverse().find((element) => {
+        if (element.type === TOOL_ITEMS.STICKY_NOTE) {
+          return worldPoint.x >= Math.min(element.x1, element.x2)
+            && worldPoint.x <= Math.max(element.x1, element.x2)
+            && worldPoint.y >= Math.min(element.y1, element.y2)
+            && worldPoint.y <= Math.max(element.y1, element.y2);
+        }
+
+        if (element.type === TOOL_ITEMS.TEXT && element.text) {
+          const width = Math.max(String(element.text).length * (element.size || 24) * 0.55, 36);
+          const height = element.size || 24;
+          return worldPoint.x >= element.x1
+            && worldPoint.x <= element.x1 + width
+            && worldPoint.y >= element.y1
+            && worldPoint.y <= element.y1 + height;
+        }
+
+        return false;
+      });
+
+      if (movableElement) {
+        draggingElementRef.current = movableElement.id;
+        movedElementRef.current = false;
+        lastDragPointRef.current = worldPoint;
+        return;
       }
-
-      if (element.type === TOOL_ITEMS.TEXT && element.text) {
-        const width = Math.max(String(element.text).length * (element.size || 24) * 0.55, 36);
-        const height = element.size || 24;
-        return worldPoint.x >= element.x1
-          && worldPoint.x <= element.x1 + width
-          && worldPoint.y >= element.y1
-          && worldPoint.y <= element.y1 + height;
-      }
-
-      return false;
-    });
-
-    if (movableElement) {
-      draggingElementRef.current = movableElement.id;
-      movedElementRef.current = false;
-      lastDragPointRef.current = worldPoint;
-      return;
     }
 
     handleMouseDown(event, toolBoxState);

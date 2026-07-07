@@ -30,11 +30,20 @@ const normalizeDiagram = (diagram) => {
   };
 };
 
+const getCandidateModels = () => {
+  const configured = process.env.GEMINI_MODEL;
+  return [
+    configured,
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-flash-latest",
+  ].filter(Boolean).filter((model, index, models) => models.indexOf(model) === index);
+};
+
 router.post("/diagram", async (req, res) => {
   try {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
     if (!apiKey) {
       return res.status(501).json({ error: "GEMINI_API_KEY is not configured." });
@@ -67,33 +76,50 @@ Do not use generic software boxes like User, Frontend, API, Service, Cache, or D
 Make node labels specific to the user's prompt, not generic placeholders.
 `;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: instruction }] }],
-          generationConfig: {
-            temperature: 0.25,
-            responseMimeType: "application/json",
-          },
-        }),
+    let data = null;
+    let modelUsed = "";
+    let lastError = "";
+
+    for (const model of getCandidateModels()) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: instruction }] }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      data = await response.json();
+
+      if (response.ok) {
+        modelUsed = model;
+        break;
       }
-    );
 
-    const data = await response.json();
+      lastError = data?.error?.message || "Gemini request failed.";
 
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: data?.error?.message || "Gemini request failed.",
+      if (!/not found|not supported|not available/i.test(lastError)) {
+        return res.status(response.status).json({ error: lastError });
+      }
+    }
+
+    if (!modelUsed) {
+      return res.status(502).json({
+        error: `${lastError} Try GEMINI_MODEL=gemini-2.5-flash.`,
       });
     }
 
     const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text).join("") || "";
     const parsed = JSON.parse(cleanJsonText(text));
 
-    res.json(normalizeDiagram(parsed));
+    res.json({ ...normalizeDiagram(parsed), model: modelUsed });
   } catch (error) {
     res.status(500).json({ error: error.message || "Unable to generate diagram." });
   }
