@@ -32,7 +32,10 @@ function Board() {
   const canvasRef = useRef(null);
   const textAreaRef = useRef();
   const isPanningRef = useRef(false);
+  const draggingElementRef = useRef(null);
+  const movedElementRef = useRef(false);
   const lastPanPointRef = useRef({ x: 0, y: 0 });
+  const lastDragPointRef = useRef({ x: 0, y: 0 });
   const spacePressedRef = useRef(false);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -50,6 +53,7 @@ function Board() {
     panViewport,
     zoomViewport,
     worldToScreen,
+    moveElement,
   } = useContext(boardContext);
 
   useLayoutEffect(() => {
@@ -191,10 +195,56 @@ function Board() {
       return;
     }
 
+    const worldPoint = {
+      x: viewport.x + event.clientX / viewport.zoom,
+      y: viewport.y + event.clientY / viewport.zoom,
+    };
+    const movableElement = [...elements].reverse().find((element) => {
+      if (element.type === TOOL_ITEMS.STICKY_NOTE) {
+        return worldPoint.x >= Math.min(element.x1, element.x2)
+          && worldPoint.x <= Math.max(element.x1, element.x2)
+          && worldPoint.y >= Math.min(element.y1, element.y2)
+          && worldPoint.y <= Math.max(element.y1, element.y2);
+      }
+
+      if (element.type === TOOL_ITEMS.TEXT && element.text) {
+        const width = Math.max(String(element.text).length * (element.size || 24) * 0.55, 36);
+        const height = element.size || 24;
+        return worldPoint.x >= element.x1
+          && worldPoint.x <= element.x1 + width
+          && worldPoint.y >= element.y1
+          && worldPoint.y <= element.y1 + height;
+      }
+
+      return false;
+    });
+
+    if (movableElement) {
+      draggingElementRef.current = movableElement.id;
+      movedElementRef.current = false;
+      lastDragPointRef.current = worldPoint;
+      return;
+    }
+
     handleMouseDown(event, toolBoxState);
   };
 
   const boardMouseMoveHandler = (event) => {
+    if (draggingElementRef.current !== null) {
+      const worldPoint = {
+        x: viewport.x + event.clientX / viewport.zoom,
+        y: viewport.y + event.clientY / viewport.zoom,
+      };
+      moveElement(
+        draggingElementRef.current,
+        worldPoint.x - lastDragPointRef.current.x,
+        worldPoint.y - lastDragPointRef.current.y
+      );
+      movedElementRef.current = true;
+      lastDragPointRef.current = worldPoint;
+      return;
+    }
+
     if (isPanningRef.current) {
       const deltaX = event.clientX - lastPanPointRef.current.x;
       const deltaY = event.clientY - lastPanPointRef.current.y;
@@ -207,6 +257,12 @@ function Board() {
   };
 
   const boardMouseUphandler = (event) => {
+    if (draggingElementRef.current !== null) {
+      draggingElementRef.current = null;
+      movedElementRef.current = false;
+      return;
+    }
+
     if (isPanningRef.current) {
       isPanningRef.current = false;
       return;
@@ -250,6 +306,7 @@ function Board() {
             color: currentTextElement?.stroke,
           }}
           onBlur={(event) => textAreaBlur(event.target.value, toolBoxState)}
+          placeholder="Type here"
         />
       )}
       <canvas

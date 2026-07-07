@@ -19,7 +19,8 @@ const boardContext = createContext(
         zoomViewport: () => {},
         worldToScreen: () => ({ x: 0, y: 0 }),
         generateDiagram: () => {},
-        addStickyNote: () => {}
+        addStickyNote: () => {},
+        moveElement: () => {}
     }
 )
 

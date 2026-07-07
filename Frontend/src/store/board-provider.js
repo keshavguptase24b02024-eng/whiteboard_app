@@ -96,7 +96,8 @@ const boardReducer = (state, action) => {
     case BOARD_ACTIONS.CHANGE_TEXT: {
       const index = state.elements.length - 1;
       const newElements = [...state.elements];
-      newElements[index].text = action.payload.text;
+      if (!newElements[index]) return state;
+      newElements[index].text = action.payload.text || "";
       const newHistory = state.history.slice(0, state.index + 1);
       newHistory.push(newElements);
       return { ...state, toolActionType: TOOL_ACTION_TYPES.NONE, elements: newElements, history: newHistory, index: state.index + 1 };
@@ -150,6 +151,35 @@ const boardReducer = (state, action) => {
         index: state.index + 1,
         loading: false,
       };
+    }
+    case BOARD_ACTIONS.MOVE_ELEMENT: {
+      const { id, deltaX, deltaY } = action.payload;
+      const elements = state.elements.map((element) => {
+        if (element.id !== id) return element;
+
+        const moved = {
+          ...element,
+          x1: element.x1 + deltaX,
+          y1: element.y1 + deltaY,
+          x2: element.x2 + deltaX,
+          y2: element.y2 + deltaY,
+        };
+
+        if ([TOOL_ITEMS.LINE, TOOL_ITEMS.RECTANGLE, TOOL_ITEMS.CIRCLE, TOOL_ITEMS.ARROW].includes(element.type)) {
+          moved.roughElement = createRoughElement(
+            element.id,
+            moved.x1,
+            moved.y1,
+            moved.x2,
+            moved.y2,
+            { type: element.type, stroke: element.stroke, fill: element.fill, size: element.size }
+          ).roughElement;
+        }
+
+        return moved;
+      });
+
+      return { ...state, elements };
     }
     default:
       return state;
@@ -321,6 +351,13 @@ const BoardProvider = ({ children }) => {
     dispatchBoardAction({ type: BOARD_ACTIONS.ADD_ELEMENTS, payload: { elements: [note] } });
   }, [boardState.elements.length, boardState.viewport]);
 
+  const moveElement = useCallback((elementId, deltaX, deltaY) => {
+    dispatchBoardAction({
+      type: BOARD_ACTIONS.MOVE_ELEMENT,
+      payload: { id: elementId, deltaX, deltaY },
+    });
+  }, []);
+
   const boardContextValue = {
     activeToolItem: boardState.activeToolItem,
     handleActiveToolItemClick,
@@ -338,6 +375,7 @@ const BoardProvider = ({ children }) => {
     worldToScreen,
     generateDiagram,
     addStickyNote,
+    moveElement,
   };
 
   return <boardContext.Provider value={boardContextValue}>{children}</boardContext.Provider>;

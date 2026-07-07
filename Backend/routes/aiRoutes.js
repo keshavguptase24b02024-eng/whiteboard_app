@@ -45,20 +45,25 @@ router.post("/diagram", async (req, res) => {
     }
 
     const instruction = `
-Create a concise system-design whiteboard diagram for this request: "${prompt.trim()}".
+Create a concise whiteboard flowchart for this request: "${prompt.trim()}".
 Return only valid JSON with this shape:
 {
   "title": "short title",
   "nodes": [
-    { "id": "client", "label": "Client", "type": "client" }
+    { "id": "step-1", "label": "Short action step", "type": "step" }
   ],
   "connections": [
-    { "from": "client", "to": "api", "label": "request" }
+    { "from": "step-1", "to": "step-2", "label": "" }
   ],
-  "notes": ["short design note"]
+  "notes": ["short practical note"]
 }
 Use 4 to 7 nodes. Use simple ids with lowercase letters, numbers, and hyphens.
-Include common infrastructure when relevant: API server, database, cache, queue, workers, CDN, auth.
+Infer the user's intent from the prompt:
+- If they ask for a real-world process, product flow, user journey, business workflow, or everyday task, use practical step-by-step actions.
+- If they ask for software architecture, backend design, system design, or technical infrastructure, use technical components.
+- If they ask for a concept, topic, or study explanation, use a learning flow from basics to outcome.
+Do not force API/database/cache/service boxes unless the prompt explicitly asks for technical architecture.
+Make node labels specific to the user's prompt, not generic placeholders.
 `;
 
     const response = await fetch(
