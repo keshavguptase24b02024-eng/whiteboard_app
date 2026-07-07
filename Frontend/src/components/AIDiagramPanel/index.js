@@ -6,15 +6,19 @@ import classes from "./index.module.css";
 function AIDiagramPanel() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { generateDiagram } = useContext(boardContext);
 
   const handleGenerate = async () => {
     const value = prompt.trim();
     if (!value || loading) return;
     setLoading(true);
+    setError("");
     try {
       await generateDiagram(value);
       setPrompt("");
+    } catch (err) {
+      setError(err.message || "AI diagram failed. Check Gemini setup.");
     } finally {
       setLoading(false);
     }
@@ -33,12 +37,13 @@ function AIDiagramPanel() {
           onKeyDown={(event) => {
             if (event.key === "Enter") handleGenerate();
           }}
-          placeholder="URL shortener system design"
+          placeholder="Hospital workflow, food delivery flow, login architecture..."
         />
         <button onClick={handleGenerate} disabled={loading}>
           {loading ? "Thinking..." : "Generate"}
         </button>
       </div>
+      {error && <p className={classes.error}>{error}</p>}
     </div>
   );
 }

@@ -45,7 +45,7 @@ router.post("/diagram", async (req, res) => {
     }
 
     const instruction = `
-Create a concise whiteboard flowchart for this request: "${prompt.trim()}".
+Create a concise, useful whiteboard flowchart for this request: "${prompt.trim()}".
 Return only valid JSON with this shape:
 {
   "title": "short title",
@@ -59,10 +59,11 @@ Return only valid JSON with this shape:
 }
 Use 4 to 7 nodes. Use simple ids with lowercase letters, numbers, and hyphens.
 Infer the user's intent from the prompt:
-- If they ask for a real-world process, product flow, user journey, business workflow, or everyday task, use practical step-by-step actions.
+- If they give a short domain prompt such as "hospital", "food delivery", "bank", or "college", assume they want a real-world workflow for that domain.
+- If they ask for a real-world process, product flow, user journey, business workflow, or everyday task, use practical step-by-step actions with domain-specific labels.
 - If they ask for software architecture, backend design, system design, or technical infrastructure, use technical components.
 - If they ask for a concept, topic, or study explanation, use a learning flow from basics to outcome.
-Do not force API/database/cache/service boxes unless the prompt explicitly asks for technical architecture.
+Do not use generic software boxes like User, Frontend, API, Service, Cache, or Database unless the prompt explicitly asks for technical architecture.
 Make node labels specific to the user's prompt, not generic placeholders.
 `;
 

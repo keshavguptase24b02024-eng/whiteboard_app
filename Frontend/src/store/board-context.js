@@ -20,7 +20,8 @@ const boardContext = createContext(
         worldToScreen: () => ({ x: 0, y: 0 }),
         generateDiagram: () => {},
         addStickyNote: () => {},
-        moveElement: () => {}
+        moveElement: () => {},
+        updateElementText: () => {}
     }
 )
 

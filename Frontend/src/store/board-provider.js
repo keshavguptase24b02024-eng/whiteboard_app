@@ -7,7 +7,6 @@ import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../config';
 import { serializeElements } from '../utils/api';
 import {
-  generateDiagramElements,
   generateDiagramElementsFromSpec,
   generateStickyNoteElement,
 } from '../utils/aiDiagram';
@@ -181,6 +180,15 @@ const boardReducer = (state, action) => {
 
       return { ...state, elements };
     }
+    case BOARD_ACTIONS.UPDATE_ELEMENT_TEXT: {
+      const { id, text } = action.payload;
+      const elements = state.elements.map((element) =>
+        element.id === id ? { ...element, text } : element
+      );
+      const newHistory = state.history.slice(0, state.index + 1);
+      newHistory.push(elements);
+      return { ...state, elements, history: newHistory, index: state.index + 1 };
+    }
     default:
       return state;
   }
@@ -322,21 +330,21 @@ const BoardProvider = ({ children }) => {
       y: boardState.viewport.y + 140,
     };
 
-    let generated;
-    try {
-      const response = await fetch(`${API_BASE_URL}/ai/diagram`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
+    const response = await fetch(`${API_BASE_URL}/ai/diagram`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
 
-      if (!response.ok) throw new Error("AI request failed");
+    const data = await response.json().catch(() => ({}));
 
-      const diagram = await response.json();
-      generated = generateDiagramElementsFromSpec(diagram, boardState.elements.length, origin);
-    } catch (error) {
-      console.warn("Using local diagram fallback:", error.message);
-      generated = generateDiagramElements(prompt, boardState.elements.length, origin);
+    if (!response.ok) {
+      throw new Error(data.error || "Gemini diagram request failed.");
+    }
+
+    const generated = generateDiagramElementsFromSpec(data, boardState.elements.length, origin);
+    if (!generated.length) {
+      throw new Error("Gemini returned an empty diagram.");
     }
 
     dispatchBoardAction({ type: BOARD_ACTIONS.ADD_ELEMENTS, payload: { elements: generated } });
@@ -358,6 +366,13 @@ const BoardProvider = ({ children }) => {
     });
   }, []);
 
+  const updateElementText = useCallback((elementId, text) => {
+    dispatchBoardAction({
+      type: BOARD_ACTIONS.UPDATE_ELEMENT_TEXT,
+      payload: { id: elementId, text },
+    });
+  }, []);
+
   const boardContextValue = {
     activeToolItem: boardState.activeToolItem,
     handleActiveToolItemClick,
@@ -376,6 +391,7 @@ const BoardProvider = ({ children }) => {
     generateDiagram,
     addStickyNote,
     moveElement,
+    updateElementText,
   };
 
   return <boardContext.Provider value={boardContextValue}>{children}</boardContext.Provider>;

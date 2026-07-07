@@ -23,6 +23,21 @@
   box-shadow: 0 1px 0 0 #db2777;
 }
 
+.stickyEditBox {
+  position: absolute;
+  z-index: 1000;
+  padding: 18px;
+  border: 2px solid #db2777;
+  border-radius: 14px;
+  color: #4a1837;
+  background: rgba(253, 230, 138, 0.92);
+  box-shadow: 0 18px 38px rgba(157, 23, 77, 0.18);
+  outline: none;
+  resize: none;
+  font-family: 'Caveat', cursive;
+  line-height: 1.18;
+}
+
 .backButton {
   position: fixed;
   top: 24px;

@@ -64,11 +64,15 @@ const chooseDiagram = (prompt) => {
     return ["Client", "Auth", "WebSocket Server", "Message Queue", "Database", "Notification Worker"];
   }
 
-  if (normalized.includes("ecommerce") || normalized.includes("shop")) {
-    return ["User", "Storefront", "Cart Service", "Payment", "Inventory", "Orders DB"];
+  if (normalized.includes("food") || normalized.includes("delivery") || normalized.includes("restaurant")) {
+    return ["Browse restaurants", "Add food items", "Place order", "Restaurant accepts", "Driver pickup", "Deliver order"];
   }
 
-  return ["User", "Frontend", "API", "Service", "Cache", "Database"];
+  if (normalized.includes("ecommerce") || normalized.includes("shop")) {
+    return ["Browse products", "Add to cart", "Checkout", "Payment", "Pack order", "Deliver order"];
+  }
+
+  return ["Start", "Choose option", "Submit request", "Process request", "Confirm result", "Finish"];
 };
 
 export const generateDiagramElements = (prompt, startId, origin) => {

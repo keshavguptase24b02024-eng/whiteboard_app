@@ -1,4 +1,4 @@
-import { useEffect, useRef ,useContext, useLayoutEffect} from 'react';
+import { useEffect, useRef, useContext, useLayoutEffect, useState } from 'react';
 import { useNavigate,useParams } from "react-router-dom";
 
 import rough from 'roughjs/bundled/rough.esm.js';
@@ -31,12 +31,15 @@ const drawWrappedText = (context, text, x, y, maxWidth, lineHeight) => {
 function Board() {
   const canvasRef = useRef(null);
   const textAreaRef = useRef();
+  const stickyEditRef = useRef();
   const isPanningRef = useRef(false);
   const draggingElementRef = useRef(null);
   const movedElementRef = useRef(false);
   const lastPanPointRef = useRef({ x: 0, y: 0 });
   const lastDragPointRef = useRef({ x: 0, y: 0 });
   const spacePressedRef = useRef(false);
+  const [editingElement, setEditingElement] = useState(null);
+  const [editingText, setEditingText] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
   const { toolBoxState } = useContext(toolboxContext);
@@ -54,6 +57,7 @@ function Board() {
     zoomViewport,
     worldToScreen,
     moveElement,
+    updateElementText,
   } = useContext(boardContext);
 
   useLayoutEffect(() => {
@@ -108,6 +112,12 @@ function Board() {
       }, 0);
     }
   }, [toolActionType]);
+
+  useEffect(() => {
+    if (editingElement) {
+      setTimeout(() => stickyEditRef.current?.focus(), 0);
+    }
+  }, [editingElement]);
 
   useEffect(() => {
     if (toolActionType === TOOL_ACTION_TYPES.NONE && elements.length > 0) {
@@ -188,6 +198,8 @@ function Board() {
   }, [elements, viewport]);
 
   const boardMouseDownhandler = (event) => {
+    if (editingElement) return;
+
     if (event.button === 1 || spacePressedRef.current) {
       event.preventDefault();
       isPanningRef.current = true;
@@ -271,6 +283,49 @@ function Board() {
     handleMouseUp(event);
   };
 
+  const findEditableElementAtPoint = (worldPoint) => {
+    return [...elements].reverse().find((element) => {
+      if (element.type === TOOL_ITEMS.STICKY_NOTE) {
+        return worldPoint.x >= Math.min(element.x1, element.x2)
+          && worldPoint.x <= Math.max(element.x1, element.x2)
+          && worldPoint.y >= Math.min(element.y1, element.y2)
+          && worldPoint.y <= Math.max(element.y1, element.y2);
+      }
+
+      if (element.type === TOOL_ITEMS.TEXT && element.text) {
+        const width = Math.max(String(element.text).length * (element.size || 24) * 0.55, 48);
+        const height = (element.size || 24) * 1.4;
+        return worldPoint.x >= element.x1
+          && worldPoint.x <= element.x1 + width
+          && worldPoint.y >= element.y1
+          && worldPoint.y <= element.y1 + height;
+      }
+
+      return false;
+    });
+  };
+
+  const boardDoubleClickHandler = (event) => {
+    const worldPoint = {
+      x: viewport.x + event.clientX / viewport.zoom,
+      y: viewport.y + event.clientY / viewport.zoom,
+    };
+    const element = findEditableElementAtPoint(worldPoint);
+
+    if (!element) return;
+    event.preventDefault();
+    setEditingElement(element);
+    setEditingText(element.text || "");
+  };
+
+  const finishEditingElement = (saveChanges = true) => {
+    if (editingElement && saveChanges) {
+      updateElementText(editingElement.id, editingText);
+    }
+    setEditingElement(null);
+    setEditingText("");
+  };
+
   const boardWheelHandler = (event) => {
     event.preventDefault();
     const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
@@ -281,6 +336,18 @@ function Board() {
   const textScreenPoint = currentTextElement
     ? worldToScreen({ x: currentTextElement.x1, y: currentTextElement.y1 })
     : { x: 0, y: 0 };
+  const editingScreenPoint = editingElement
+    ? worldToScreen({
+        x: Math.min(editingElement.x1, editingElement.x2),
+        y: Math.min(editingElement.y1, editingElement.y2),
+      })
+    : { x: 0, y: 0 };
+  const editingWidth = editingElement
+    ? Math.max(Math.abs(editingElement.x2 - editingElement.x1) * viewport.zoom, 120)
+    : 0;
+  const editingHeight = editingElement
+    ? Math.max(Math.abs(editingElement.y2 - editingElement.y1) * viewport.zoom, 80)
+    : 0;
 
   return (
     <> 
@@ -309,12 +376,39 @@ function Board() {
           placeholder="Type here"
         />
       )}
+      {editingElement && (
+        <textarea
+          ref={stickyEditRef}
+          className={classNames.stickyEditBox}
+          value={editingText}
+          style={{
+            top: editingScreenPoint.y,
+            left: editingScreenPoint.x,
+            width: editingWidth,
+            height: editingHeight,
+            fontSize: `${Math.max(18 * viewport.zoom, 14)}px`,
+          }}
+          onChange={(event) => setEditingText(event.target.value)}
+          onBlur={() => finishEditingElement(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              finishEditingElement(false);
+            }
+            if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+              event.preventDefault();
+              finishEditingElement(true);
+            }
+          }}
+        />
+      )}
       <canvas
         onMouseDown={boardMouseDownhandler}
         ref={canvasRef}
         onMouseMove={boardMouseMoveHandler}
         onMouseUp={boardMouseUphandler}
         onMouseLeave={boardMouseUphandler}
+        onDoubleClick={boardDoubleClickHandler}
         onWheel={boardWheelHandler}
         onContextMenu={(event) => event.preventDefault()}
         id="canvas"
