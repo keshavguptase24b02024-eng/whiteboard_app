@@ -3,6 +3,7 @@ const cors = require("cors");
 const connectToDb = require("./db");
 const userRoutes = require("./routes/userRoutes");
 const canvasRoutes = require("./routes/canvasRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 });
 app.use("/", userRoutes);
 app.use("/canvas", canvasRoutes);
+app.use("/ai", aiRoutes);
 
 
 // --- CREATE HTTP SERVER AND SOCKET.IO ---

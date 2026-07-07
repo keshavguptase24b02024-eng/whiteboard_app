@@ -7,6 +7,26 @@ import { TOOL_ACTION_TYPES, TOOL_ITEMS } from '../../constants';
 import toolboxContext from '../../store/toolbox-context';
 import classNames from './index.module.css';
 import { updateCanvas } from '../../utils/api';
+import AIDiagramPanel from '../AIDiagramPanel';
+
+const drawWrappedText = (context, text, x, y, maxWidth, lineHeight) => {
+  const words = String(text || "").split(" ");
+  let line = "";
+  let offsetY = 0;
+
+  words.forEach((word) => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (context.measureText(testLine).width > maxWidth && line) {
+      context.fillText(line, x, y + offsetY);
+      line = word;
+      offsetY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  });
+
+  if (line) context.fillText(line, x, y + offsetY);
+};
 
 function Board() {
   const canvasRef = useRef(null);
@@ -129,6 +149,26 @@ function Board() {
             context.fillStyle = element.stroke;
             context.fillText(element.text, element.x1, element.y1);
             context.restore();
+          } else if (element.type === TOOL_ITEMS.STICKY_NOTE) {
+            context.save();
+            const width = element.x2 - element.x1;
+            const height = element.y2 - element.y1;
+            context.fillStyle = element.fill || "#fde68a";
+            context.strokeStyle = element.stroke || "#9d174d";
+            context.lineWidth = element.size || 2;
+            context.shadowColor = "rgba(157, 23, 77, 0.16)";
+            context.shadowBlur = 18;
+            context.shadowOffsetY = 8;
+            context.beginPath();
+            context.roundRect(element.x1, element.y1, width, height, 14);
+            context.fill();
+            context.shadowColor = "transparent";
+            context.stroke();
+            context.fillStyle = "#4a1837";
+            context.font = "24px Caveat";
+            context.textBaseline = "top";
+            drawWrappedText(context, element.text, element.x1 + 18, element.y1 + 18, Math.abs(width) - 36, 28);
+            context.restore();
           } else if (element.roughElement) {
             roughCanvas.draw(element.roughElement);
           }
@@ -189,11 +229,13 @@ function Board() {
   return (
     <> 
       <button 
-        onClick={() => navigate("/dashboard")} 
+        onClick={() => navigate(id ? "/dashboard" : "/auth")} 
         className={classNames.backButton}
       >
         ⬅ Back
       </button>
+
+      <AIDiagramPanel />
 
       {toolActionType === TOOL_ACTION_TYPES.WRITING && (
         <textarea

@@ -111,6 +111,19 @@ function App() {
         element={token ? <Navigate to="/dashboard" /> : <VerifyEmail />} 
       />
 
+      <Route
+        path="/demo"
+        element={
+          <BoardProvider>
+            <ToolboxProvider>
+              <ToolBox />
+              <Toolbar />
+              <Board />
+            </ToolboxProvider>
+          </BoardProvider>
+        }
+      />
+
       {/* Default redirect */}
       <Route path="*" element={<Navigate to={token ? "/dashboard" : "/auth"} />} />
     </Routes>

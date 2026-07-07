@@ -5,7 +5,8 @@ export const TOOL_ITEMS = {
     CIRCLE : "CIRCLE",
     ARROW: "ARROW",
     ERASER: "ERASER",
-    TEXT: "TEXT"
+    TEXT: "TEXT",
+    STICKY_NOTE: "STICKY_NOTE"
 };
 
 export const BOARD_ACTIONS = {
@@ -19,7 +20,8 @@ export const BOARD_ACTIONS = {
     CHANGE_TEXT: "CHANGE_TEXT",
     REDO : "REDO",
     PAN_VIEWPORT: "PAN_VIEWPORT",
-    ZOOM_VIEWPORT: "ZOOM_VIEWPORT"
+    ZOOM_VIEWPORT: "ZOOM_VIEWPORT",
+    ADD_ELEMENTS: "ADD_ELEMENTS"
 };
 
 export const TOOL_ACTION_TYPES = {

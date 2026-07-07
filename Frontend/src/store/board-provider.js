@@ -6,6 +6,11 @@ import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../config';
 import { serializeElements } from '../utils/api';
+import {
+  generateDiagramElements,
+  generateDiagramElementsFromSpec,
+  generateStickyNoteElement,
+} from '../utils/aiDiagram';
 
 const BASE_URL = API_BASE_URL;
 
@@ -134,6 +139,18 @@ const boardReducer = (state, action) => {
         },
       };
     }
+    case BOARD_ACTIONS.ADD_ELEMENTS: {
+      const elements = [...state.elements, ...action.payload.elements];
+      const newHistory = state.history.slice(0, state.index + 1);
+      newHistory.push(elements);
+      return {
+        ...state,
+        elements,
+        history: newHistory,
+        index: state.index + 1,
+        loading: false,
+      };
+    }
     default:
       return state;
   }
@@ -180,7 +197,11 @@ const BoardProvider = ({ children }) => {
       }
     }
 
-    if (id) fetchCanvas();
+    if (id) {
+      fetchCanvas();
+    } else {
+      dispatchBoardAction({ type: BOARD_ACTIONS.SET_ELEMENTS, payload: { elements: [], name: "Demo board" } });
+    }
 
     socket.on("canvasUpdated", (allElements) => {
       isSocketUpdate.current = true; 
@@ -193,6 +214,8 @@ const BoardProvider = ({ children }) => {
   }, [id]);
 
   useEffect(() => {
+    if (!id || boardState.loading) return;
+
     if (!boardState.loading) {
       if (isSocketUpdate.current) {
         isSocketUpdate.current = false;
@@ -263,6 +286,41 @@ const BoardProvider = ({ children }) => {
   const undoboardHandler = useCallback(() => dispatchBoardAction({ type: BOARD_ACTIONS.UNDO }), []);
   const redoBoardhandler = useCallback(() => dispatchBoardAction({ type: BOARD_ACTIONS.REDO }), []);
 
+  const generateDiagram = useCallback(async (prompt) => {
+    const origin = {
+      x: boardState.viewport.x + 120,
+      y: boardState.viewport.y + 140,
+    };
+
+    let generated;
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/diagram`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) throw new Error("AI request failed");
+
+      const diagram = await response.json();
+      generated = generateDiagramElementsFromSpec(diagram, boardState.elements.length, origin);
+    } catch (error) {
+      console.warn("Using local diagram fallback:", error.message);
+      generated = generateDiagramElements(prompt, boardState.elements.length, origin);
+    }
+
+    dispatchBoardAction({ type: BOARD_ACTIONS.ADD_ELEMENTS, payload: { elements: generated } });
+  }, [boardState.elements.length, boardState.viewport]);
+
+  const addStickyNote = useCallback((text) => {
+    const origin = {
+      x: boardState.viewport.x + 180,
+      y: boardState.viewport.y + 180,
+    };
+    const note = generateStickyNoteElement(boardState.elements.length, origin, text);
+    dispatchBoardAction({ type: BOARD_ACTIONS.ADD_ELEMENTS, payload: { elements: [note] } });
+  }, [boardState.elements.length, boardState.viewport]);
+
   const boardContextValue = {
     activeToolItem: boardState.activeToolItem,
     handleActiveToolItemClick,
@@ -278,6 +336,8 @@ const BoardProvider = ({ children }) => {
     panViewport,
     zoomViewport,
     worldToScreen,
+    generateDiagram,
+    addStickyNote,
   };
 
   return <boardContext.Provider value={boardContextValue}>{children}</boardContext.Provider>;

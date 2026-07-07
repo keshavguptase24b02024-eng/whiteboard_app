@@ -200,6 +200,13 @@ export default function Auth({ onLogin }) {
             onError={() => { setStatus("error"); setMessage("Google Login Failed"); }}
           />
         </div>
+        <button
+          type="button"
+          className="anonymous-btn"
+          onClick={() => navigate("/demo")}
+        >
+          Continue without registering
+        </button>
         </section>
       </div>
     </div>

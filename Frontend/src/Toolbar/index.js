@@ -13,9 +13,10 @@ import { FaPenAlt } from "react-icons/fa";
 import { IoIosUndo } from "react-icons/io";
 import { IoIosRedo } from "react-icons/io";
 import { FaDownload } from "react-icons/fa";
+import { FaStickyNote } from "react-icons/fa";
 const Toolbar = () => {
 
-  const {activeToolItem,handleActiveToolItemClick,undo,redo} = useContext(boardContext);
+  const {activeToolItem,handleActiveToolItemClick,undo,redo,addStickyNote} = useContext(boardContext);
 
    const handleDownload = () => {
      const canvas = document.getElementById("canvas");
@@ -72,6 +73,11 @@ const Toolbar = () => {
       <div title='Text'
          className={cx(classes.toolItem,{[classes.active]:activeToolItem === TOOL_ITEMS.TEXT})}
          onClick={()=>handleActiveToolItemClick(TOOL_ITEMS.TEXT)}><FaPenAlt />
+      </div>
+      <div title='Add sticky note'
+         className={classes.toolItem}
+         onClick={()=> addStickyNote("Sticky note")}
+      ><FaStickyNote />
       </div>
       <div title='Undo'
          className={classes.toolItem}

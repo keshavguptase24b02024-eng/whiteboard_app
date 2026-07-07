@@ -61,6 +61,10 @@ export const createRoughElement = (id,x1,y1,x2,y2,{type,stroke,fill,size})=> {
             element.text = "";
             return element;
 
+        case TOOL_ITEMS.STICKY_NOTE:
+            element.text = "Sticky note";
+            return element;
+
         default:
             throw new Error("Type not recognized");
     }
@@ -112,6 +116,12 @@ export const isPointNearElement = (element, {pointX, pointY}) =>{
                 isPointCloseToLine(x1 + textWidth, y1 + textHeight, x1, y1 + textHeight, pointX, pointY)||
                 isPointCloseToLine(x1, y1 + textHeight, x1, y1, pointX, pointY)
             );
+
+        case TOOL_ITEMS.STICKY_NOTE:
+            return pointX >= Math.min(x1, x2)
+                && pointX <= Math.max(x1, x2)
+                && pointY >= Math.min(y1, y2)
+                && pointY <= Math.max(y1, y2);
 
         default: return false;
     }

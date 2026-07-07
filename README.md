@@ -79,6 +79,8 @@ JWT_ACCESS_SECRET=your_jwt_secret
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 RESEND_API_KEY=your_resend_api_key
 FRONTEND_URL=http://localhost:3000
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.0-flash
 ```
 
 Create `Frontend/.env` if the backend is not running on `http://localhost:5000`:
@@ -174,9 +176,14 @@ Runs the React test runner.
 - `DELETE /canvas/delete` - delete a canvas
 - `POST /canvas/share/:id` - share a canvas with another user
 
+### AI
+
+- `POST /ai/diagram` - generate a system-design diagram spec with Gemini
+
 ## Notes
 
 - Protected API routes expect an `Authorization: Bearer <token>` header.
 - The frontend stores the current JWT in `localStorage`.
 - Canvas updates are saved to MongoDB and Socket.IO rooms are available for collaborative update broadcasts.
 - Large canvas payloads are supported by the backend request body limit.
+- The AI diagram feature uses Gemini from the backend. If `GEMINI_API_KEY` is missing, the frontend uses a local fallback generator.
